@@ -19,8 +19,8 @@ async function run() {
     const database = client.db('bike-selling');
     const productsCollection = database.collection('Products');
     const ordersCollection = database.collection("orders");
-    // const usersCollection = database.collection('users');
-    // const reviewCollection = database.collection("review");
+    const usersCollection = database.collection('users');
+    const reviewsCollection = database.collection("reviews");
 
     //add product Collection
 
@@ -35,6 +35,17 @@ async function run() {
     app.get("/allproduct", async (req, res) => {
       const result = await productsCollection.find({}).toArray();
       res.send(result);
+    });
+
+    //Delete Product 
+
+    app.post('/allproduct-delete/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log('hello', id);
+      const query = { _id: ObjectId(id) };
+      const result = await productsCollection.deleteOne(query);
+      res.json(result);
+      console.log('hello');
     });
 
 
@@ -52,6 +63,7 @@ async function run() {
 
     app.post("/addOrderItem", async (req, res) => {
       const result = await ordersCollection.insertOne(req.body);
+      console.log(result);
       res.send(result);
     });
 
@@ -74,6 +86,72 @@ async function run() {
       res.json(result);
       //console.log('hello');
     });
+
+    //add review
+
+    app.post("/addreview", async (req, res) => {
+      const result = await reviewsCollection.insertOne(req.body);
+      console.log(result);
+      res.send(result);
+    });
+
+    //get reviews
+
+    app.get("/allreview", async (req, res) => {
+      const result = await reviewsCollection.find({}).toArray();
+      res.send(result);
+    });
+
+    // Add user
+
+    app.post("/addusers", async (req, res) => {
+      const result = await usersCollection.insertOne(req.body);
+      console.log(result);
+      res.send(result);
+    });
+
+    //  user list
+
+    app.get("/allusers", async (req, res) => {
+      const result = await usersCollection.find({}).toArray();
+      res.send(result);
+    });
+
+
+    // app.post("/makeAdmin", async (req, res) => {
+    //   const filter = { email: req.body.email };
+    //   const result = await usersCollection.find(filter).toArray();
+    //   if (result) {
+    //     const updateDoc = await usersCollection.updateOne(filter, { $set: { role: "admin" } });
+    //     console.log(updateDoc, "doc");
+    //   }
+    //   console.log(result, req.body, "koi");
+    // });
+
+
+    //Make Admin
+
+    app.post("/makeAdmin", async (req, res) => {
+      const filter = { _id: new ObjectId(req.body.id) };
+      //const result = await usersCollection.find(filter).toArray();
+      //if (result) {
+      const updateDoc = await usersCollection.updateOne(filter, { $set: { role: "admin" } });
+      console.log(updateDoc, "doc");
+      // }
+      // console.log(result, req.body, "koi");
+      console.log(filter, req.body);
+    });
+
+    //Get all products
+
+
+    // Check Admin
+    app.get("/checkAdmin/:email", async (req, res) => {
+      const result = await usersCollection.find({ email: req.params.email }).toArray();
+      console.log(result);
+      res.send(result);
+    });
+
 
   } finally {
     // Ensures that the client will close when you finish/error
