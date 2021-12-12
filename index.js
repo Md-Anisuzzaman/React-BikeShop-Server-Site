@@ -67,6 +67,15 @@ async function run() {
       res.send(result);
     });
 
+
+    // get all orders
+
+    app.get("/allorders", async (req, res) => {
+      const result = await ordersCollection.find({}).toArray();
+      res.send(result);
+    });
+
+
     // get my orders list
 
     app.get("/myOrders/:email", async (req, res) => {
@@ -133,17 +142,10 @@ async function run() {
 
     app.post("/makeAdmin", async (req, res) => {
       const filter = { _id: new ObjectId(req.body.id) };
-      //const result = await usersCollection.find(filter).toArray();
-      //if (result) {
       const updateDoc = await usersCollection.updateOne(filter, { $set: { role: "admin" } });
-      console.log(updateDoc, "doc");
-      // }
-      // console.log(result, req.body, "koi");
-      console.log(filter, req.body);
+      // console.log(updateDoc, "doc");
+      // console.log(filter, req.body);
     });
-
-    //Get all products
-
 
     // Check Admin
     app.get("/checkAdmin/:email", async (req, res) => {
@@ -155,7 +157,7 @@ async function run() {
 
   } finally {
     // Ensures that the client will close when you finish/error
-    ///await client.close();
+    //await client.close();
   }
 }
 run().catch(console.dir);
