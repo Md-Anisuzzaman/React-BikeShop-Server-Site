@@ -39,7 +39,7 @@ async function run() {
 
     //Delete Product 
 
-    app.post('/allproduct-delete/:id', async (req, res) => {
+    app.delete('/allproduct-delete/:id', async (req, res) => {
       const id = req.params.id;
       console.log('hello', id);
       const query = { _id: ObjectId(id) };
@@ -87,7 +87,7 @@ async function run() {
 
     //DELETE Orders
 
-    app.post('/orders-delete/:id', async (req, res) => {
+    app.delete('/orders-delete/:id', async (req, res) => {
       const id = req.params.id;
       //console.log('hello', id);
       const query = { _id: ObjectId(id) };
