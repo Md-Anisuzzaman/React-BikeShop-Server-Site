@@ -4,13 +4,18 @@ const cors = require('cors');
 require('dotenv').config();
 const { MongoClient } = require('mongodb');
 const ObjectId = require("mongodb").ObjectId;
-const port = process.env.PORT || 5000;
+const bodyParser = require('body-parser')
+const formData = require('express-form-data');
+const port = process.env.PORT || 8000;
 
 
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(formData.parse());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.yhzyn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+
+const uri = `mongodb+srv://BuyBikeDB:yIAFNfuLDUHST2wn@cluster0.yhzyn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 console.log(uri);
 async function run() {
@@ -27,7 +32,8 @@ async function run() {
     app.post("/addproduct", async (req, res) => {
       console.log(req.body);
       const result = await productsCollection.insertOne(req.body);
-      res.send(result);
+      // res.send(result);
+      res.json(result);
     });
 
     // get all products
