@@ -45,13 +45,13 @@ async function run() {
 
     //Delete Product 
 
-    app.delete('/allproduct-delete/:id', async (req, res) => {
+    app.delete('/product-delete/:id', async (req, res) => {
       const id = req.params.id;
       console.log('hello', id);
       const query = { _id: ObjectId(id) };
       const result = await productsCollection.deleteOne(query);
+      console.log(result);
       res.json(result);
-      console.log('hello');
     });
 
 
