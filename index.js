@@ -30,8 +30,18 @@ async function run() {
     //add product Collection
 
     app.post("/addproduct", async (req, res) => {
-      console.log(req.body);
       const result = await productsCollection.insertOne(req.body);
+      // res.send(result);
+      res.json(result);
+    });
+
+    app.post("/editProduct", async (req, res) => {
+      let id = req.body.id;
+      delete req.body.id
+      const result = await productsCollection.updateOne(
+        { "_id": ObjectId(id) },
+        { $set: req.body }
+      );
       // res.send(result);
       res.json(result);
     });
@@ -58,11 +68,9 @@ async function run() {
     // single product details to purchase
 
     app.get("/singleProduct/:id", async (req, res) => {
-      //console.log(req.params.id);
       const query = { _id: ObjectId(req.params.id) }
       const result = await productsCollection.findOne(query)
-      res.send(result);
-      //console.log("result vaiya",result);
+      res.json(result);
     });
 
     // add order an item
@@ -116,6 +124,25 @@ async function run() {
       const result = await reviewsCollection.find({}).toArray();
       res.send(result);
     });
+
+    //Register 
+
+    app.post("/register", async (req, res) => {
+      // const result = await ordersCollection.insertOne(req.body);
+      // console.log(result);
+      // res.send(result);
+      res.json(req.body);
+
+    });
+
+    //Login
+    app.post("/login", async (req, res) => {
+      // const result = await ordersCollection.insertOne(req.body);
+      // console.log(result);
+      // res.send(result);
+      res.json(req.body);
+    });
+
 
     // Add user
 
