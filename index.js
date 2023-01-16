@@ -136,7 +136,7 @@ async function run() {
     //   res.json(req.body);
     // });
 
-    //Register 
+    //Register rtk 
     app.post("/register", async (req, res) => {
 
       const name = req.body.name;
@@ -152,21 +152,58 @@ async function run() {
     });
 
 
-    //Login
+    //Login rtk
     app.post("/login", async (req, res) => {
-      // const result = await ordersCollection.insertOne(req.body);
-      // console.log(result);
-      // res.send(result);
-      res.json(req.body);
+      const { email, password } = req.body;
+
+      // const userPassword = await usersCollection.findOne({ password:password});
+
+      if (!email && !password) {
+
+        return res.status(400).json({ error: "filled all cdata" });
+      }
+
+      const userEmail = await usersCollection.findOne({ email: email });
+      const userPassword = await usersCollection.findOne({ password:password});
+
+
+      const isMatch = await bcrypt.compare(password, userPassword.password);
+
+
+      if (!userEmail && !isMatch ) {
+        res.status(400).json({ error: "authentication failed" });
+      }
+      else {
+        res.json({ messsage: "Successfully authenticated" })
+      }
+
+      // if ((usereEmail.length && userPassword.length) > 0) {
+      //   const compareEmail = await bcrypt.compare(req.body.email, usereEmail[0].email);
+      //   const comparePassword = await bcrypt.compare(req.body.password, userPassword[0].password);
+      //   if (compareEmail && comparePassword) {
+      //     res.status(200).json("Authentication Successful");
+      //   }
+      // }
+      // else
+      //   res.status(401).json("Authentication faild");
+
     });
+
+    // //Login react bike shop
+    // app.post("/login", async (req, res) => {
+    //   const result = await ordersCollection.insertOne(req.body);
+    //   console.log(result);
+    //   res.send(result);
+    //   res.json(req.body);
+    // });
 
 
     // Add user
 
-    app.post("/addusers", async (req, res) => {
-      const result = await usersCollection.insertOne(req.body);
-      res.send(result);
-    });
+    // app.post("/addusers", async (req, res) => {
+    //   const result = await usersCollection.insertOne(req.body);
+    //   res.send(result);
+    // });
 
     //  user list
 
@@ -192,8 +229,6 @@ async function run() {
     app.post("/makeAdmin", async (req, res) => {
       const filter = { _id: new ObjectId(req.body.id) };
       const updateDoc = await usersCollection.updateOne(filter, { $set: { role: "admin" } });
-      // console.log(updateDoc, "doc");
-      // console.log(filter, req.body);
     });
 
     // Check Admin
