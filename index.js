@@ -7,6 +7,7 @@ const { MongoClient } = require('mongodb');
 const ObjectId = require("mongodb").ObjectId;
 const bodyParser = require('body-parser')
 const formData = require('express-form-data');
+const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 8000;
 
 
@@ -141,51 +142,86 @@ async function run() {
 
       const name = req.body.name;
       const email = req.body.email;
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      const user = await usersCollection.findOne({ email: email });
 
-      const result = await usersCollection.insertOne({
-        name,
-        email,
-        password: hashedPassword,
-      });
-      res.json(result);
+      if (!user) {
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        let user = await usersCollection.insertOne({
+          name,
+          email,
+          password: hashedPassword,
+        });
+        user = await usersCollection.findOne(user.insertedId)
+
+        let userData = {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+        }
+        const token = await jwt.sign({
+          userData
+        }, "!@#$%^&*(", { expiresIn: '999999999999999s' });
+        return res.status(200).json({
+          userData,
+          message: "Registration Successfull",
+          token
+        });
+      }
+      else {
+        return res.status(401).json({
+          message: "user already exist",
+        });
+      }
     });
 
 
     //Login rtk
     app.post("/login", async (req, res) => {
-      const { email, password } = req.body;
+      let { email, password } = req.body;
 
-      // const userPassword = await usersCollection.findOne({ password:password});
+      const user = await usersCollection.findOne({ email: email });
 
-      if (!email && !password) {
+      if (user) {
+        const isMatch = await bcrypt.compare(password, user.password);
 
-        return res.status(400).json({ error: "filled all cdata" });
-      }
+        if (isMatch) {
+          let userData = {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+          }
+          const token = await jwt.sign({
+            userData
+          }, "!@#$%^&*(", { expiresIn: '999999999999999s' });
+          return res.status(200).json({
+            userData,
+            message: "Authenticate Successfull",
+            token
+          });
+        }
+        else {
+          return res.status(401).json({
+            userData: {
+              id: null,
+              name: null,
+              email: null,
+            },
+            message: "Password not matched"
+          });
 
-      const userEmail = await usersCollection.findOne({ email: email });
-      const userPassword = await usersCollection.findOne({ password:password});
-
-
-      const isMatch = await bcrypt.compare(password, userPassword.password);
-
-
-      if (!userEmail && !isMatch ) {
-        res.status(400).json({ error: "authentication failed" });
+        }
       }
       else {
-        res.json({ messsage: "Successfully authenticated" })
+        return res.status(401).json({
+          userData: {
+            id: null,
+            name: null,
+            email: null,
+          },
+          message: "not user found"
+        });
       }
 
-      // if ((usereEmail.length && userPassword.length) > 0) {
-      //   const compareEmail = await bcrypt.compare(req.body.email, usereEmail[0].email);
-      //   const comparePassword = await bcrypt.compare(req.body.password, userPassword[0].password);
-      //   if (compareEmail && comparePassword) {
-      //     res.status(200).json("Authentication Successful");
-      //   }
-      // }
-      // else
-      //   res.status(401).json("Authentication faild");
 
     });
 

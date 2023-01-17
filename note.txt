@@ -1,0 +1,19 @@
+login system steps:
+
+1. login with email and password
+2. an api end point will recieve email and password
+3. request data validation
+4. find user using email from database
+4.1. if email user not found gives a error
+5. match request password with hash password
+6. if request password match with hash password system will generate a token and return.
+7. else return a error a authenticated failed match
+
+
+amar kora kaj ki ki chilo ajk
+
+
+1.check existing user
+2. if user exit to create login otherwise
+
+
